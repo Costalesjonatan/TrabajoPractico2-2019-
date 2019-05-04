@@ -25,13 +25,13 @@ class PrimmTest {
 	public void obtenerAgmTest()
 	{
 		GrafoPonderado grafo = new GrafoPonderado(3);
-		grafo.agregarArista(0, 1, 100);
-		grafo.agregarArista(0, 2, 2);
-		grafo.agregarArista(1, 2, 1);
+		grafo.agregarArco(0, 1, 100);
+		grafo.agregarArco(0, 2, 2);
+		grafo.agregarArco(1, 2, 1);
 		
 		GrafoPonderado esperado = new GrafoPonderado(3);
-		esperado.agregarArista(0, 2, 2);
-		esperado.agregarArista(1, 2, 1);
+		esperado.agregarArco(0, 2, 2);
+		esperado.agregarArco(1, 2, 1);
 		
 		assertEquals(Primm.generarAgm(grafo).toString(), esperado.toString());
 		

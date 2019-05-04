@@ -20,7 +20,7 @@ import org.openstreetmap.gui.jmapviewer.MapMarkerDot;
 import org.openstreetmap.gui.jmapviewer.MapPolygonImpl;
 
 import agentes.Agente;
-import formulas.Haversine;
+import grafos.Arco;
 import grafos.GrafoPonderado;
 import grafos.Primm;
 
@@ -61,6 +61,7 @@ public class Interfaz {
 		iniciliazarMapa();
 		incializarBotonGenerarRed();
 		_agentes = new ArrayList<Agente>();
+		_grafo = new GrafoPonderado(0);
 	}
 	
 	private void inicializarFrame()
@@ -78,7 +79,7 @@ public class Interfaz {
 		_mapa = new JMapViewer();
 		_mapa.setBounds(0, 0, 400, 700);
 		_mapa.setZoomContolsVisible(false);
-		_mapa.setDisplayPositionByLatLon( -40.8134499, -62.9966812, 4); //TODO: pone las coordenadas de algun lugar que deje cnetrado el mapa
+		_mapa.setDisplayPositionByLatLon( -40.8134499, -62.9966812, 4);
 		_mapa.addMouseListener(new MouseAdapter() 
 		{
 			public void mouseClicked(MouseEvent e) 
@@ -87,7 +88,6 @@ public class Interfaz {
 				{
 					Coordinate ubicacion = _mapa.getPosition(e.getPoint());
 					agregarAgente(ubicacion);
-					_mapa.removeAllMapPolygons();
 				}
 			}
 		});
@@ -109,8 +109,9 @@ public class Interfaz {
 		{
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				_grafo = new GrafoPonderado(_agentes.size());
-				generarRed(_agentes);
+				_grafo = Primm.generarAgm(_grafo);
+				_mapa.removeAllMapPolygons();
+				mostrarArcos();
 			}
 		});
 		_frame.add(_generar_red);
@@ -127,6 +128,9 @@ public class Interfaz {
 				MapMarkerDot mapMarkerDot = new MapMarkerDot(_agentes.get(_agentes.size()-1).obtenerNombre(), ubicacion);
 				mapMarkerDot.setBackColor(Color.RED);
 				_mapa.addMapMarker(mapMarkerDot);
+				_grafo.agergarVertice();
+				_grafo.generarGrafoCompleto(_agentes);
+				mostrarArcos();
 			}
 		} 
 		catch(IllegalArgumentException e)
@@ -135,36 +139,15 @@ public class Interfaz {
 		}
 	}
 	
-	private void generarRed(ArrayList<Agente> agentes)
+	private void mostrarArcos()
 	{
-		for(int i = 0; i < _agentes.size(); i++)
+		ArrayList<Arco> arcos = _grafo.obtenerArcos();
+		for(Arco a: arcos)
 		{
-			for(int j = (i+1); j < _agentes.size(); j++)
-			{
-				Coordinate ubicacionOrigen = _agentes.get(i).obtenerubicacion();
-				Coordinate ubicacionDestino = _agentes.get(j).obtenerubicacion();
-				int distancia = (int) Haversine.obtenerDistanciaEnKm(ubicacionOrigen, ubicacionDestino);
-				_grafo.agregarArista(i, j, distancia);
-			}
-		}
-		System.out.println(_grafo.toString());
-		mostrarAgm();
-		System.out.println(_grafo.toString());
-	}
-	
-	private void mostrarAgm()
-	{
-		_grafo = Primm.generarAgm(_grafo);
-		for(int i = 0; i < _grafo.obtenerTamaño(); i++)
-		{
-			for(int j = i; j < _grafo.obtenerTamaño(); j++)
-			{
-				if(_grafo.obtenerArista(i, j) != 0)
-				{
-					MapPolygonImpl camino = new MapPolygonImpl("", _agentes.get(i).obtenerubicacion(), _agentes.get(j).obtenerubicacion(), _agentes.get(i).obtenerubicacion());
-					_mapa.addMapPolygon(camino);
-				}
-			}
+			Coordinate agenteOrigen = _agentes.get(a.obtenerPosicionX()).obtenerubicacion();
+			Coordinate agenteDestino = _agentes.get(a.obtenerPosicionY()).obtenerubicacion();
+			MapPolygonImpl camino = new MapPolygonImpl("" + a.obtenerPeso(), agenteOrigen, agenteDestino, agenteOrigen);
+			_mapa.addMapPolygon(camino);
 		}
 	}
 }

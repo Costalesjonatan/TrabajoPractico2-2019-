@@ -21,8 +21,8 @@ public class Primm
 				{
 					if(!verticesVisitados.contains(j)) //evito que se analizen las aristas que prodian formar circuitos simples
 					{
-						Arco arista = new Arco(I, j, grafo.obtenerArista(I, j));
-						if(grafo.obtenerArista(I, j) != 0 &&  AGM.obtenerArista(I, j) == 0) //hay una arista y no esta en el AGM
+						Arco arista = new Arco(I, j, grafo.obtenerPeso(I, j));
+						if(grafo.obtenerPeso(I, j) != 0 &&  AGM.obtenerPeso(I, j) == 0) //hay una arista y no esta en el AGM
 						{
 							arcosPendientes.add(arista);
 						}
@@ -30,7 +30,7 @@ public class Primm
 				}
 			}
 			Arco arcoMenor = dameMenorArista(arcosPendientes);
-			AGM.agregarArista(arcoMenor.obtenerPosicionX(), arcoMenor.obtenerPosicionY(), arcoMenor.obtenerPeso());
+			AGM.agregarArco(arcoMenor.obtenerPosicionX(), arcoMenor.obtenerPosicionY(), arcoMenor.obtenerPeso());
 			verticesVisitados.add(arcoMenor.obtenerPosicionY());
 			i++;
 		}

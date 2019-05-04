@@ -1,28 +1,70 @@
 package grafos;
 
+import java.util.ArrayList;
+
+import org.openstreetmap.gui.jmapviewer.Coordinate;
+
+import agentes.Agente;
+import formulas.Haversine;
+
 public class GrafoPonderado 
 {
 	
 	private int[][] _grafo;
+	private ArrayList<Arco> _arcos;
 	
 	public GrafoPonderado(int vertices)
 	{
 		verificarVerticeConstructor(vertices);
 		_grafo = new int[vertices][vertices];
+		_arcos = new ArrayList<Arco>();
+	}
+	//TODO: testealo
+	public void agergarVertice()
+	{
+		int[][] nuevo = new int[obtenerTamaño()+1][obtenerTamaño()+1];
+		for(int i = 0; i < obtenerTamaño(); i++)
+		{
+			for(int j = 0; j < obtenerTamaño(); j++)
+			{
+				nuevo[i][j] = obtenerPeso(i,j);
+			}
+		}
+		_grafo = nuevo;
 	}
 	
-	public void agregarArista(int posicionX, int posicionY, int peso)
+	public void agregarArco(int posicionX, int posicionY, int peso)
 	{
 		verificarPeso(peso);
 		verificarPosiciones(posicionX, posicionY);
 		verificarBucle(posicionX, posicionY);
 		_grafo[posicionX][posicionY] = peso;
 		_grafo[posicionY][posicionX] = peso;
+		_arcos.add(new Arco(posicionX, posicionY, peso));
+	}
+	//TODO: este metodo hace ruido... falta testearlo tambien
+	public void generarGrafoCompleto(ArrayList<Agente> agentes)
+	{
+		for(int i = 0; i < agentes.size(); i++)
+		{
+			for(int j = (i+1); j < agentes.size(); j++)
+			{
+				Coordinate ubicacionOrigen = agentes.get(i).obtenerubicacion();
+				Coordinate ubicacionDestino = agentes.get(j).obtenerubicacion();
+				int distancia = (int) Haversine.obtenerDistanciaEnKm(ubicacionOrigen, ubicacionDestino);
+				agregarArco(i, j, distancia);
+			}
+		}
 	}
 	
-	public int obtenerArista(int posicionX, int posicionY)
+	public int obtenerPeso(int posicionX, int posicionY)
 	{
 		return _grafo[posicionX][posicionY];
+	}
+	
+	public ArrayList<Arco> obtenerArcos()
+	{
+		return _arcos;
 	}
 	
 	private void verificarVerticeConstructor(int vertice)
@@ -90,10 +132,10 @@ public class GrafoPonderado
 		{
 			for(int j = i; j < obtenerTamaño(); j++)
 			{
-				int distancia = obtenerArista(i,j);
+				int distancia = obtenerPeso(i,j);
 				if(distancia != 0)
 				{
-					ret.append("(" + (i) + ", " + (j) + ", "+ obtenerArista(i,j) +")");
+					ret.append("(" + (i) + ", " + (j) + ", "+ obtenerPeso(i,j) +")");
 				}
 			}
 		}
