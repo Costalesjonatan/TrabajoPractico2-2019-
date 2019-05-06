@@ -5,6 +5,7 @@ import org.openstreetmap.gui.jmapviewer.Coordinate;
 public class Agente 
 {
 	
+	
 	private String _nombre_clave;
 	private Coordinate _ubicacion;
 	private int _numero_de_agente;
